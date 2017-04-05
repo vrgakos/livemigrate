@@ -70,6 +70,7 @@ func (c *TcpClient) ReceiveLoop() {
 		res := &MsgResponse{}
 		err := c.decoder.Decode(res)
 		if err != nil {
+			log.Println(err)
 			break
 		}
 

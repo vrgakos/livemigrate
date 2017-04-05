@@ -58,6 +58,7 @@ func (s *TcpServer) ReceiveLoop(conn net.Conn) {
 		}
 	}
 	log.Printf("Client left: %s\n", conn.RemoteAddr().String())
+	conn.Close()
 }
 
 func (s *TcpServer) Start() error {
