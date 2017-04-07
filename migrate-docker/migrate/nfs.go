@@ -12,7 +12,7 @@ import (
 	"github.com/docker/docker/api/types"
 )
 
-func Nfs(from *Node, to *Node, containerId string, maxIters int) *Measure {
+func Nfs(from *Node, to *Node, containerId string, migrateOpts *DoOpts) *Measure {
 	m := NewMeasure()
 
 	// NEW SNAPSHOT ID
@@ -87,12 +87,12 @@ func Nfs(from *Node, to *Node, containerId string, maxIters int) *Measure {
 
 	cpDir := "/mnt/" + to.Alias + "/"
 	parentCpDir := ""
-	var currIters = 0
+	statCalc := NewStatCalc(migrateOpts)
 
-	for currIters < maxIters {
+	for statCalc.Resume() {
 		// CHECKPOINT CREATE
-		cpId := fmt.Sprintf("%s.%d", checkPoint, currIters)
-		err = dockerCliFrom.CheckpointCreate(context.Background(),
+		cpId := fmt.Sprintf("%s.%d", checkPoint, statCalc.GetIters())
+		stats, err := dockerCliFrom.CheckpointCreate(context.Background(),
 			ins.ID,
 			types.CheckpointCreateOptions{
 				CheckpointDir: cpDir,
@@ -106,14 +106,14 @@ func Nfs(from *Node, to *Node, containerId string, maxIters int) *Measure {
 			log.Println("CheckpointCreate (pre-dump) error:", err)
 			return nil
 		}
+		statCalc.Add(&stats)
 		m.AddMilestone("CheckpointCreate (pre-dump) done")
 		parentCpDir = "../" + cpId
-		currIters++
 	}
 
 
 	// FINAL CHECKPOINT CREATE
-	err = dockerCliFrom.CheckpointCreate(context.Background(),
+	_, err = dockerCliFrom.CheckpointCreate(context.Background(),
 		ins.ID,
 		types.CheckpointCreateOptions{
 			CheckpointDir: cpDir,

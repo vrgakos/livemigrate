@@ -15,7 +15,7 @@ type nfsOptions struct {
 	maxIters	int
 }
 
-func nfsCommand(store *node.NodeStore) *cobra.Command {
+func nfsCommand(store *node.NodeStore, migrateOpts *migrate.DoOpts) *cobra.Command {
 	var opts nfsOptions
 
 	cmd := &cobra.Command{
@@ -40,14 +40,14 @@ func nfsCommand(store *node.NodeStore) *cobra.Command {
 				return fmt.Errorf("Invalid destination!")
 			}
 
-			migrate.Nfs(sourceNode, destNode, opts.container, opts.maxIters)
+			migrate.Nfs(sourceNode, destNode, opts.container, migrateOpts)
 
 			return store.Save()
 		},
 	}
 
-	flags := cmd.Flags()
-	flags.IntVar(&opts.maxIters, "max-iters", 5, "Max pre-dump count")
+	//flags := cmd.Flags()
+
 
 	return cmd
 }
