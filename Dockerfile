@@ -15,4 +15,4 @@ RUN rm -rf /go/src
 
 WORKDIR /app
 
-ENTRYPOINT /go/bin/migrate-docker
+ENTRYPOINT /bin/bash
