@@ -54,7 +54,7 @@ func (ns *NodeStore) Save() error {
 		return err
 	}
 
-	err = ioutil.WriteFile(ns.file, b, 0777)
+	err = ioutil.WriteFile(ns.file, b, 0664)
 	if err != nil {
 		return err
 	}

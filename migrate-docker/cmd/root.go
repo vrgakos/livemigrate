@@ -55,7 +55,7 @@ func init() {
 	// Cobra supports Persistent Flags, which, if defined here,
 	// will be global for your application.
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "D:\\nodes.json", "config file for nodes")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "nodes.json", "config file for nodes")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	//RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
