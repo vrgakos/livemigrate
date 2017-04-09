@@ -15,8 +15,6 @@
 package node
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/vrgakos/livemigrate/node"
 )
@@ -25,10 +23,10 @@ import (
 var nodeCmd = &cobra.Command{
 	Use:   "node",
 	Short: "Control remote nodes",
-	Run: func(cmd *cobra.Command, args []string) {
+	/*Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
 		fmt.Println("node called")
-	},
+	},*/
 }
 
 func Init(root *cobra.Command, store *node.NodeStore) {

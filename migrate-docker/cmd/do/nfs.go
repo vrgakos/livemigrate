@@ -5,19 +5,11 @@ import (
 	"fmt"
 	"github.com/vrgakos/livemigrate/node"
 	"github.com/vrgakos/livemigrate/migrate-docker/migrate"
+	"github.com/vrgakos/livemigrate/migrate-docker/chart"
 )
 
-type nfsOptions struct {
-	source		string
-	dest		string
-	container	string
-
-	maxIters	int
-}
 
 func nfsCommand(store *node.NodeStore, migrateOpts *migrate.DoOpts) *cobra.Command {
-	var opts nfsOptions
-
 	cmd := &cobra.Command{
 		Use:   "nfs [OPTIONS] SOURCE DESTINATION CONTAINER",
 		Short: "Do live migrate over nfs",
@@ -26,28 +18,25 @@ func nfsCommand(store *node.NodeStore, migrateOpts *migrate.DoOpts) *cobra.Comma
 				return fmt.Errorf("Too few arguments!")
 			}
 
-			opts.source = args[0]
-			opts.dest = args[1]
-			opts.container = args[2]
-
-			sourceNode := store.GetNode(opts.source)
+			sourceNode := store.GetNode(args[0])
 			if sourceNode == nil {
 				return fmt.Errorf("Invalid source!")
 			}
 
-			destNode := store.GetNode(opts.dest)
+			destNode := store.GetNode(args[1])
 			if destNode == nil {
 				return fmt.Errorf("Invalid destination!")
 			}
 
-			migrate.Nfs(sourceNode, destNode, opts.container, migrateOpts)
+			migrate.Nfs(sourceNode, destNode, args[2], migrateOpts)
 
-			return store.Save()
+			chart.DrawTcpappChart(migrateOpts.MeasureFileName, "tcp-rtt.svg")
+
+			return nil
 		},
 	}
 
 	//flags := cmd.Flags()
-
 
 	return cmd
 }

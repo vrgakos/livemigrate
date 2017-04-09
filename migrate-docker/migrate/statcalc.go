@@ -4,12 +4,6 @@ import (
 	"github.com/docker/docker/api/types"
 )
 
-type DoOpts struct {
-	PredumpMaxIters		int
-	PredumpMinPages		int
-	PredumpMaxGrowRate	int
-}
-
 type StatCalc struct {
 	prevStats   *types.CheckpointStat
 	currStats   *types.CheckpointStat

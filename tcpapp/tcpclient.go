@@ -11,6 +11,7 @@ import (
 type TcpClientCb func(*TcpClientResult)
 
 type TcpClientResult struct {
+	Time			time.Time
 	Rtt			time.Duration
 }
 
@@ -22,6 +23,7 @@ type TcpClient struct {
 	conn			net.Conn
 	running			bool
 	stopChan		chan bool
+	stoppedChan		chan bool
 
 	encoder			*gob.Encoder
 	decoder			*gob.Decoder
@@ -41,7 +43,7 @@ func NewTcpClient(target string, interval time.Duration, cb TcpClientCb) *TcpCli
 }
 
 func (c *TcpClient) Loop() {
-	log.Println("Loop started.")
+	log.Println("TCP client: SendLoop started.")
 	ticker := time.NewTicker(c.interval)
 	//log.Printf("Task (%d) loop started\n", t.Id)
 	for c.running {
@@ -61,7 +63,8 @@ func (c *TcpClient) Loop() {
 			}
 		}
 	}
-	log.Println("Loop ended.")
+	log.Println("TCP client: SendLoop ended.")
+	c.stoppedChan <- true
 	c.Stop()
 }
 
@@ -76,6 +79,7 @@ func (c *TcpClient) ReceiveLoop() {
 
 		//log.Println("Got RESPONSE", res)
 		result := &TcpClientResult{
+			Time:	res.Time,
 			Rtt:	time.Now().Sub(res.Time),
 		}
 		//log.Println("--RESULT", result)
@@ -84,7 +88,8 @@ func (c *TcpClient) ReceiveLoop() {
 			c.cb(result)
 		}
 	}
-	log.Println("ReceiveLoop ended.")
+	log.Println("TCP client: ReceiveLoop ended.")
+	c.stoppedChan <- true
 	c.Stop()
 }
 
@@ -94,6 +99,7 @@ func (c *TcpClient) Start() error {
 	}
 	c.running = true
 	c.stopChan = make(chan bool)
+	c.stoppedChan = make(chan bool, 2)
 
 	conn, err := net.Dial("tcp", c.target)
 	if err != nil {
@@ -111,10 +117,11 @@ func (c *TcpClient) Start() error {
 }
 
 func (c *TcpClient) Stop() error {
-	log.Println("Stopping")
-	if c.running {
+	if !c.running {
 		return fmt.Errorf("Not running!")
 	}
+	log.Println("TCP client: Stopping")
+	//c.cb = nil
 	c.running = false
 	c.stopChan <- true
 
@@ -123,6 +130,10 @@ func (c *TcpClient) Stop() error {
 	if err != nil {
 		return err
 	}
+
+	<- c.stoppedChan
+	<- c.stoppedChan
+	log.Println("TCP client: Stopped")
 
 	return nil
 }

@@ -2,7 +2,6 @@ package migrate
 
 import (
 	. "github.com/vrgakos/livemigrate/node"
-	. "github.com/vrgakos/livemigrate/measure"
 	"fmt"
 	"github.com/google/uuid"
 	"log"
@@ -13,17 +12,13 @@ import (
 )
 
 func Nfs(from *Node, to *Node, containerId string, migrateOpts *DoOpts) *Measure {
-	m := NewMeasure()
+	m := NewMeasure(migrateOpts)
+	m.Start()
 
 	// NEW SNAPSHOT ID
 	id, _ := uuid.NewRandom()
 	checkPoint := id.String()[:8]
 	fmt.Printf("Snapshot id: %s\n", checkPoint)
-
-
-	// START TCPDUMP AND WAIT
-	// START TCP-CLIENT AND WAIT
-
 
 	m.MilestoneStart()
 	fmt.Printf("Provided container id: %s\n", containerId)
@@ -144,6 +139,8 @@ func Nfs(from *Node, to *Node, containerId string, migrateOpts *DoOpts) *Measure
 	}
 	m.AddMilestone("ContainerStart done")
 
+
+	m.Stop()
 	return m
 }
 
