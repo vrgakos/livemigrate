@@ -24,6 +24,9 @@ func DrawTcpappChart(resultFile string, outFile string) error {
 	}
 
 	dataLen := len(measure.ClientResults)
+	if dataLen == 0 {
+		return nil
+	}
 
 	times := make([]time.Time, dataLen)
 	values := make([]float64, dataLen)

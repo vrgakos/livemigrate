@@ -33,7 +33,7 @@ func Init(root *cobra.Command, store *node.NodeStore) {
 
 	// TCP client options
 	doCmd.PersistentFlags().DurationVarP(&opts.TcpClientInterval, "client-interval", "i", time.Millisecond * 1, "TCP client message interval in nanosec")
-	doCmd.PersistentFlags().StringVarP(&opts.TcpClientAddress, "client-address", "a", "192.168.0.20:3333", "TCP client connection address")
+	doCmd.PersistentFlags().StringVarP(&opts.TcpClientAddress, "client-address", "a", "", "TCP client connection address")
 
 
 	// Cobra supports local flags which will only run when this command
