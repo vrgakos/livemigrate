@@ -20,7 +20,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	defer lock.Unlock()
 
 	number++
-	fmt.Fprintf(w, "Hi, the number is: %d!", number)
+	fmt.Fprintf(w, "Hi, the number is: %d!\n", number)
 }
 
 func main() {
