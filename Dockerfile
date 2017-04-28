@@ -5,8 +5,8 @@ COPY . /go/src/github.com/vrgakos/livemigrate
 RUN mkdir /app
 RUN mkdir -p $GOPATH/src/github.com/docker \
     && cd $GOPATH/src/github.com/docker \
-    && git clone http://github.com/vrgakos/docker
-    && cd docker
+    && git clone http://github.com/vrgakos/docker \
+    && cd docker \
     && git checkout 000-livemigrate
 RUN cd /go/src/github.com/vrgakos/livemigrate/migrate-docker \
     && go get -v
