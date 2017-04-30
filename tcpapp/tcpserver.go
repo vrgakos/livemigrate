@@ -73,6 +73,7 @@ func (s *TcpServer) Start() error {
 	}
 	s.ln = ln
 
+	log.Printf("Binding to: %s\n", s.target)
 	go s.Loop()
 
 	return nil
