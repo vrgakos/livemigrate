@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"os/exec"
+	"strings"
 )
 
 var port int
@@ -26,7 +27,7 @@ func main() {
 	stressArgs := os.Getenv("STRESS")
 	var cmd *exec.Cmd
 	if len(stressArgs) > 0 {
-		cmd = exec.Command("/usr/bin/stress", stressArgs)
+		cmd = exec.Command("/usr/bin/stress", strings.Split(stressArgs, " ")...)
 		cmd.Stdout = os.Stdout
 	}
 
