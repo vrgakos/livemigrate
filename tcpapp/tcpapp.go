@@ -2,7 +2,6 @@ package tcpapp
 
 import (
 	"time"
-	"github.com/gogo/protobuf/test/data"
 )
 
 type MsgRequest struct {
