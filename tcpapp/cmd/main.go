@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"os/exec"
 )
 
 var port int
@@ -22,10 +23,21 @@ func main() {
 	server := tcpapp.NewTcpServer(fmt.Sprintf("%s:%d", bind, port))
 	server.Start()
 
+	stressArgs := os.Getenv("STRESS")
+	var cmd *exec.Cmd
+	if len(stressArgs) > 0 {
+		cmd = exec.Command("/usr/bin/stress", stressArgs)
+		cmd.Stdout = os.Stdout
+	}
+
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 	for _ = range signalChan {
 
 	}
 	server.Stop()
+
+	if cmd != nil {
+		cmd.Process.Kill()
+	}
 }
