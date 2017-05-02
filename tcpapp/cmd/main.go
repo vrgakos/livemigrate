@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"os/exec"
 	"strings"
+	"log"
 )
 
 var port int
@@ -29,6 +30,12 @@ func main() {
 	if len(stressArgs) > 0 {
 		cmd = exec.Command("/usr/bin/stress", strings.Split(stressArgs, " ")...)
 		cmd.Stdout = os.Stdout
+
+		err := cmd.Start()
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("Subprocess pid: %d\n", cmd.Process.Pid)
 	}
 
 	signalChan := make(chan os.Signal, 1)
