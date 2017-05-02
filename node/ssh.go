@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"log"
 	"io"
+	"net"
 )
 
 func PublicKeyFile(file string) (ssh.AuthMethod, error) {
@@ -47,6 +48,9 @@ func NewSshClient(host string, port int, user string, keyFile string) (*SshClien
 		config:		&ssh.ClientConfig{
 					User: user,
 					Auth: []ssh.AuthMethod { auth },
+					HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+						return nil
+					},
 				},
 	}
 
