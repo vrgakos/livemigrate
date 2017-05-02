@@ -49,7 +49,7 @@ func NewNodeStore(file string) *NodeStore {
 
 
 func (ns *NodeStore) Save() error {
-	b, err := json.Marshal(ns.Nodes)
+	b, err := json.MarshalIndent(ns.Nodes, "", "    ")
 	if err != nil {
 		return err
 	}
