@@ -20,6 +20,9 @@ func Nfs(from *Node, to *Node, containerId string, migrateOpts *DoOpts) *Measure
 	checkPoint := id.String()[:8]
 	fmt.Printf("Snapshot id: %s\n", checkPoint)
 
+	m.AddStat(from, "/mnt/docker/stat/" + checkPoint + "/from.xlsx")
+	m.AddStat(to, "/mnt/docker/stat/" + checkPoint + "/to.xlsx")
+
 	m.MilestoneStart()
 	fmt.Printf("Provided container id: %s\n", containerId)
 

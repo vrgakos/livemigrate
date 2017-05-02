@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"github.com/vrgakos/livemigrate/node"
+	"sync"
 )
 
 type Milestone struct {
@@ -25,6 +27,8 @@ type Measure struct {
 
 	client		*tcpapp.TcpClient
 	ClientResults	[]*tcpapp.TcpClientResult
+
+	bgJobs		[]*node.BackGroundjob
 }
 
 func NewMeasure(opts *DoOpts) *Measure {
@@ -89,7 +93,29 @@ func (m *Measure) Stop() error {
 		return err
 	}
 
+	var wg sync.WaitGroup
+	for _, job := range m.bgJobs {
+		wg.Add(1)
+		go (func(j *node.BackGroundjob) {
+			j.Stop()
+			wg.Done()
+		})(job)
+	}
+	wg.Wait()
+
 	os.Stdout.Sync()
 
 	return ioutil.WriteFile(m.Opts.MeasureFileName, b, 0664)
+}
+
+func (m *Measure) AddStat(node *node.Node, file string) error {
+	ssh, err := node.GetSshClient()
+	if err != nil {
+		return err
+	}
+	job := ssh.NewBackGroundjob("/mnt/docker/asd --file " + file)
+
+	m.bgJobs = append(m.bgJobs, job)
+
+	return nil
 }
