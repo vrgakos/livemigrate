@@ -49,7 +49,9 @@ func (m *Measure) AddMilestone(name string) {
 		Name:		name,
 		At:		time.Now(),
 	}
-	fmt.Printf("-- Milestone: %s (%v)\n", name, time.Now().Sub(m.LastTime))
+	diff := time.Now().Sub(m.StartTime)
+	secs := float64(diff.Nanoseconds()) / float64(1000000000)
+	fmt.Printf("-- Milestone: %s (%v at %.1f)\n", name, time.Now().Sub(m.LastTime), secs)
 
 	m.Milestones = append(m.Milestones, stone)
 	m.LastTime = time.Now()
@@ -123,6 +125,7 @@ func (m *Measure) Stop() error {
 	}
 	wg.Wait()
 
+	m.AddMilestone("All done.")
 	os.Stdout.Sync()
 
 	return nil
