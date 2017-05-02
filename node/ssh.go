@@ -114,6 +114,7 @@ func (j *BackGroundjob) Run() {
 	var err error
 	j.session, err = j.client.conn.NewSession()
 	if err != nil {
+		log.Println(err)
 		j.err = err
 		j.done <- false
 		return
@@ -125,6 +126,7 @@ func (j *BackGroundjob) Run() {
 	j.session.Stderr = &stderrBuf
 	j.stdin, err = j.session.StdinPipe()
 	if err != nil {
+		log.Println(err)
 		j.err = err
 		j.done <- false
 		return
@@ -140,6 +142,7 @@ func (j *BackGroundjob) Run() {
 
 	err = j.session.Run(j.command)
 	if err != nil {
+		log.Println(err)
 		j.err = err
 		j.done <- false
 		return

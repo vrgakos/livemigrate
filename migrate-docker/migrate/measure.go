@@ -4,11 +4,11 @@ import (
 	"time"
 	"fmt"
 	"github.com/vrgakos/livemigrate/tcpapp"
-	"encoding/json"
-	"io/ioutil"
+	"github.com/tealeg/xlsx"
 	"os"
 	"github.com/vrgakos/livemigrate/node"
 	"sync"
+	"log"
 )
 
 type Milestone struct {
@@ -86,18 +86,38 @@ func (m *Measure) Stop() error {
 	m.StopTime = time.Now()
 	if m.client != nil {
 		m.client.Stop()
+
+		/*b, err := json.MarshalIndent(m, "", "    ")
+		if err != nil {
+			return err
+		}
+
+		ioutil.WriteFile(m.Opts.MeasureFileName, b, 0664)*/
+
+		xlsxFile := xlsx.NewFile()
+		sheet, _ := xlsxFile.AddSheet("TCP RTT")
+		row := sheet.AddRow()
+		row.AddCell().SetValue("Time (s:ms)")
+		row.AddCell().SetValue("RTT (ms)")
+
+		for _, res := range m.ClientResults {
+			timeString := fmt.Sprintf("%.1f", float64(res.Time.UnixNano() - m.StartTime.UnixNano()) / float64(1000000000))
+			row := sheet.AddRow()
+			row.AddCell().SetString(timeString)
+			row.AddCell().SetFloat(float64(res.Rtt.Nanoseconds()) / float64(1000000))
+		}
+		xlsxFile.Save(m.Opts.MeasureFileName)
 	}
 
-	b, err := json.MarshalIndent(m, "", "    ")
-	if err != nil {
-		return err
-	}
+
 
 	var wg sync.WaitGroup
 	for _, job := range m.bgJobs {
 		wg.Add(1)
 		go (func(j *node.BackGroundjob) {
 			j.Stop()
+			//log.Println(b)
+			//log.Println(err)
 			wg.Done()
 		})(job)
 	}
@@ -105,15 +125,16 @@ func (m *Measure) Stop() error {
 
 	os.Stdout.Sync()
 
-	return ioutil.WriteFile(m.Opts.MeasureFileName, b, 0664)
+	return nil
 }
 
 func (m *Measure) AddStat(node *node.Node, file string) error {
 	ssh, err := node.GetSshClient()
 	if err != nil {
+		log.Println(err)
 		return err
 	}
-	job := ssh.NewBackGroundjob("/mnt/docker/asd --file " + file)
+	job := ssh.NewBackGroundjob("/mnt/docker/asd --file " + file + " >> /tmp/asd.log 2>&1")
 
 	m.bgJobs = append(m.bgJobs, job)
 

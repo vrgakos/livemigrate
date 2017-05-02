@@ -27,12 +27,12 @@ func Init(root *cobra.Command, store *node.NodeStore) {
 
 
 	// Measure options
-	doCmd.PersistentFlags().StringVarP(&opts.MeasureFileName, "file", "f", "measure.json", "Measure file path")
+	doCmd.PersistentFlags().StringVarP(&opts.MeasureFileName, "file", "f", "tcp-measure.xlsx", "Measure file path")
 	doCmd.PersistentFlags().DurationVar(&opts.MeasureWaitBefore, "wait-before", time.Second * 1, "Wait before start migration in nanosec")
 	doCmd.PersistentFlags().DurationVar(&opts.MeasureWaitAfter, "wait-after", time.Second * 1, "Wait after migration done in nanosec")
 
 	// TCP client options
-	doCmd.PersistentFlags().DurationVarP(&opts.TcpClientInterval, "client-interval", "i", time.Millisecond * 1, "TCP client message interval in nanosec")
+	doCmd.PersistentFlags().DurationVarP(&opts.TcpClientInterval, "client-interval", "i", time.Millisecond * 100, "TCP client message interval")
 	doCmd.PersistentFlags().StringVarP(&opts.TcpClientAddress, "client-address", "a", "", "TCP client connection address")
 
 

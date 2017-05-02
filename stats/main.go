@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"flag"
 	"path/filepath"
+	"strings"
 )
 
 var fileName string
@@ -29,7 +30,12 @@ func main() {
 	var file *xlsx.File
 	var sheetCpu, sheetMem *xlsx.Sheet
 	var netSheets []*xlsx.Sheet
+	var netNames map[string]int = make(map[string]int)
+
+
 	var diskSheets []*xlsx.Sheet
+	var diskNames map[string]int = make(map[string]int)
+
 	var row *xlsx.Row
 	var err error
 
@@ -45,6 +51,7 @@ func main() {
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
+	signal.Notify(signalChan, os.Kill)
 	go func() {
 		for _ = range signalChan {
 			run = false
@@ -69,28 +76,34 @@ func main() {
 	// NET
 	s := statgo.NewStat()
 	for _, stat := range s.NetIOStats() {
-		sheet, _ := file.AddSheet("NET-" + stat.IntName)
-		netSheets = append(netSheets, sheet)
+		if strings.Contains(stat.IntName, "eth") || strings.Contains(stat.IntName, "ens") {
+			netNames[stat.IntName] = len(netSheets)
+			sheet, _ := file.AddSheet("NET-" + stat.IntName)
+			netSheets = append(netSheets, sheet)
 
-		row = sheet.AddRow()
-		row.AddCell().SetValue("Time (s:ms)")
-		row.AddCell().SetValue("RX (MB/s)")
-		row.AddCell().SetValue("TX (MB/s)")
-		row.AddCell().SetValue("IPackets (packets/s)")
-		row.AddCell().SetValue("OPackets (packets/s)")
-		row.AddCell().SetValue("seconds")
+			row = sheet.AddRow()
+			row.AddCell().SetValue("Time (s:ms)")
+			row.AddCell().SetValue("RX (MB/s)")
+			row.AddCell().SetValue("TX (MB/s)")
+			row.AddCell().SetValue("IPackets (packets/s)")
+			row.AddCell().SetValue("OPackets (packets/s)")
+			row.AddCell().SetValue("seconds")
+		}
 	}
 
 	// DISK
 	for _, stat := range s.DiskIOStats() {
-		sheet, _ := file.AddSheet("DISK-" + stat.DiskName)
-		diskSheets = append(diskSheets, sheet)
+		if strings.Contains(stat.DiskName, "sda") {
+			diskNames[stat.DiskName] = len(diskSheets)
+			sheet, _ := file.AddSheet("DISK-" + stat.DiskName)
+			diskSheets = append(diskSheets, sheet)
 
-		row = sheet.AddRow()
-		row.AddCell().SetValue("Time (s:ms)")
-		row.AddCell().SetValue("Read (MB/s)")
-		row.AddCell().SetValue("Write (MB/s)")
-		row.AddCell().SetValue("seconds")
+			row = sheet.AddRow()
+			row.AddCell().SetValue("Time (s:ms)")
+			row.AddCell().SetValue("Read (MB/s)")
+			row.AddCell().SetValue("Write (MB/s)")
+			row.AddCell().SetValue("seconds")
+		}
 	}
 
 
@@ -130,9 +143,13 @@ func main() {
 
 
 		// NET STATS
-		for i, stat := range s.NetIOStats() {
-			sheet := netSheets[i]
+		for _, stat := range s.NetIOStats() {
+			index, found := netNames[stat.IntName]
+			if !found {
+				continue
+			}
 
+			sheet := netSheets[index]
 			if stat.Period.Seconds() > 0 {
 				row = sheet.AddRow()
 				secs = stat.Period.Seconds()
@@ -146,9 +163,13 @@ func main() {
 		}
 
 		// DISK STATS
-		for i, stat := range s.DiskIOStats() {
-			sheet := diskSheets[i]
+		for _, stat := range s.DiskIOStats() {
+			index, found := diskNames[stat.DiskName]
+			if !found {
+				continue
+			}
 
+			sheet := diskSheets[index]
 			if stat.Period.Seconds() > 0 {
 				row = sheet.AddRow()
 				secs = stat.Period.Seconds()

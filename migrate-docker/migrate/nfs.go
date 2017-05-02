@@ -13,7 +13,6 @@ import (
 
 func Nfs(from *Node, to *Node, containerId string, migrateOpts *DoOpts) *Measure {
 	m := NewMeasure(migrateOpts)
-	m.Start()
 
 	// NEW SNAPSHOT ID
 	id, _ := uuid.NewRandom()
@@ -22,6 +21,7 @@ func Nfs(from *Node, to *Node, containerId string, migrateOpts *DoOpts) *Measure
 
 	m.AddStat(from, "/mnt/docker/stat/" + checkPoint + "/from.xlsx")
 	m.AddStat(to, "/mnt/docker/stat/" + checkPoint + "/to.xlsx")
+	m.Start()
 
 	m.MilestoneStart()
 	fmt.Printf("Provided container id: %s\n", containerId)

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/vrgakos/livemigrate/node"
 	"github.com/vrgakos/livemigrate/migrate-docker/migrate"
-	"github.com/vrgakos/livemigrate/migrate-docker/chart"
 )
 
 
@@ -30,7 +29,6 @@ func nfsCommand(store *node.NodeStore, migrateOpts *migrate.DoOpts) *cobra.Comma
 
 			migrate.Nfs(sourceNode, destNode, args[2], migrateOpts)
 
-			chart.DrawTcpappChart(migrateOpts.MeasureFileName, "tcp-rtt.svg")
 
 			return nil
 		},
