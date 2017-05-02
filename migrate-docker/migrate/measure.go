@@ -71,6 +71,8 @@ func (m *Measure) Start() error {
 	m.StartTime = time.Now()
 	m.LastTime = time.Now()
 
+	m.AddMilestone("Starting")
+
 	if len(m.Opts.TcpClientAddress) > 0 {
 		err := m.SetupClient(m.Opts.TcpClientAddress, m.Opts.TcpClientInterval)
 		if err != nil {
@@ -79,11 +81,13 @@ func (m *Measure) Start() error {
 	}
 
 	time.Sleep(m.Opts.MeasureWaitBefore)
+	m.AddMilestone("WaitBefore done")
 	return nil
 }
 
 func (m *Measure) Stop() error {
 	time.Sleep(m.Opts.MeasureWaitAfter)
+	m.AddMilestone("WaitAfter done")
 
 	m.StopTime = time.Now()
 	if m.client != nil {
