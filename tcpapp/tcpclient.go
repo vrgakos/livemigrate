@@ -46,6 +46,13 @@ func (c *TcpClient) Loop() {
 	log.Println("TCP client: SendLoop started.")
 	ticker := time.NewTicker(c.interval)
 	//log.Printf("Task (%d) loop started\n", t.Id)
+
+	dataLen := 1024
+	data := make([]byte, dataLen)
+	for i := 0; i < dataLen; i++ {
+		data[i] = byte(i % 255)
+	}
+
 	for c.running {
 		select {
 		case <- c.stopChan:
@@ -56,6 +63,7 @@ func (c *TcpClient) Loop() {
 			// Tick
 			req := &MsgRequest{
 				Time:	time.Now(),
+				Data:   data,
 			}
 			err := c.encoder.Encode(req)
 			if err != nil {

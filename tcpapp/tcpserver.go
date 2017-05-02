@@ -41,6 +41,12 @@ func (s *TcpServer) ReceiveLoop(conn net.Conn) {
 	encoder := gob.NewEncoder(conn)
 	decoder := gob.NewDecoder(conn)
 
+	dataLen := 1024
+	data := make([]byte, dataLen)
+	for i := 0; i < dataLen; i++ {
+		data[i] = byte(i % 255)
+	}
+
 	for s.running {
 		req := &MsgRequest{}
 		err := decoder.Decode(req)
@@ -51,6 +57,7 @@ func (s *TcpServer) ReceiveLoop(conn net.Conn) {
 		//log.Println("Got REQUEST", req)
 		res := &MsgResponse{
 			Time:	req.Time,
+			Data:	data,
 		}
 		err = encoder.Encode(res)
 		if err != nil {
