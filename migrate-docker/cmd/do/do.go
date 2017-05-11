@@ -42,6 +42,7 @@ func Init(root *cobra.Command, store *node.NodeStore) {
 
 	doCmd.AddCommand(
 		nfsCommand(store, opts),
+		centralnfsCommand(store, opts),
 	)
 	root.AddCommand(doCmd)
 }
